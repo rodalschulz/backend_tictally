@@ -19,16 +19,16 @@ app.use(express.json());
 app.use(cors(corsOptions));
 // app.use(cors());
 
-// app.use((req, res, next) => {
-//   const userAgent = req.get("User-Agent");
-//   const allowedUserAgent =
-//     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
-//   if (userAgent === allowedUserAgent) {
-//     next();
-//   } else {
-//     res.status(403).send("Forbidden");
-//   }
-// });
+app.use((req, res, next) => {
+  const userAgent = req.get("User-Agent");
+  const allowedUserAgent =
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
+  if (userAgent === allowedUserAgent) {
+    next();
+  } else {
+    res.status(403).send("Forbidden");
+  }
+});
 
 app.get("/", (req, res) => {
   res.redirect("/v1");
