@@ -5,10 +5,10 @@ import v1router from "./routes/v1/v1rootRt.js";
 const app = express();
 const port = 3000;
 
-const allowedOrigins = ["https://frontend-dummy.vercel.app/"];
+const allowedOrigins = ["https://frontend-dummy.vercel.app"];
 const corsOptions = {
   origin: function (origin, callback) {
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
@@ -17,7 +17,6 @@ const corsOptions = {
 };
 
 app.use(express.json());
-// Use CORS middleware with specific origin validation
 app.use(cors(corsOptions));
 
 app.get("/", (req, res) => {

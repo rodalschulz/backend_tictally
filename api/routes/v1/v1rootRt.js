@@ -10,6 +10,7 @@ v1router.get("/", async (req, res) => {
   const usernames = await prisma.user.findMany({
     select: {
       username: true,
+      role: true,
     },
   });
   res.status(200).json({ usernames });
