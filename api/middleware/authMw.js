@@ -8,7 +8,6 @@ const authCheck = (req, res, next) => {
     const JWT_SECRET = process.env.JWT_SECRET;
     const authHeader = req.headers.authorization;
     const token = authHeader.split(" ")[1];
-    console.log(`Token provided: ${token}`);
     if (!token) {
       return res.status(401).json({ response: "No token provided" });
     }

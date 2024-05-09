@@ -35,7 +35,6 @@ const loginUser = async (req, res) => {
     });
     if (!user) {
       return res.status(400).json({ response: "User not found" });
-      console.log("Console: User not found");
     }
     const validPassword = await bcrypt.compare(
       req.body.password,
@@ -43,7 +42,6 @@ const loginUser = async (req, res) => {
     );
     if (!validPassword) {
       return res.status(400).json({ response: "Invalid password" });
-      console.log("Console: Invalid password");
     }
 
     const token = jwt.sign(
