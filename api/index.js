@@ -4,7 +4,7 @@ import v1router from "./routes/v1/v1rootRt.js";
 
 const app = express();
 
-const allowedOrigins = ["https://frontend-dummy.vercel.app"];
+const allowedOrigins = ["https://tictally.io", "https://www.tictally.io"];
 const corsOptions = {
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
