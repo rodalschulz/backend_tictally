@@ -21,13 +21,14 @@ const registerUser = async (req, res) => {
     console.log("User successfully registered");
   } catch (error) {
     console.log(error);
-    res.status(400).json({ response: "User registration failed" });
+    res
+      .status(400)
+      .json({ response: "User registration failed", error: error });
   }
 };
 
 const loginUser = async (req, res) => {
   try {
-    console.log("Console: Checking user's credentials");
     const user = await prisma.user.findUnique({
       where: {
         username: req.body.username,
@@ -53,11 +54,34 @@ const loginUser = async (req, res) => {
     );
     console.log("Console: User logged in");
 
-    res.status(200).json({ response: "User logged in", token: token });
+    res
+      .status(200)
+      .json({ response: "User logged in", token: token, id: user._id });
   } catch (error) {
     console.log(error);
-    res.status(400).json({ response: "User login failed" });
+    res.status(400).json({ response: "User login failed", error: error });
   }
 };
 
-export default { registerUser, loginUser };
+const isAuthenticated = (req, res) => {
+  try {
+    const JWT_SECRET = process.env.JWT_SECRET;
+    const authHeader = req.headers.authorization;
+    const token = authHeader.split(" ")[1];
+    if (!token) {
+      return res
+        .status(401)
+        .json({ response: false, message: "No token provided" });
+    }
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded;
+    if (!decoded) {
+      return res.status(401).json({ response: false, message: "Unauthorized" });
+    }
+    res.status(200).json({ response: true, message: "Authorized" });
+  } catch (error) {
+    res.status(403).json({ response: false, message: "Unauthenticated" });
+  }
+};
+
+export default { registerUser, loginUser, isAuthenticated };

@@ -4,7 +4,6 @@ dotenv.config();
 
 const authCheck = (req, res, next) => {
   try {
-    console.log("Console: Checking user's credentials middleware");
     const JWT_SECRET = process.env.JWT_SECRET;
     const authHeader = req.headers.authorization;
     const token = authHeader.split(" ")[1];
