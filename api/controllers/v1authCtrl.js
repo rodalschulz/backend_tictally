@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 const registerUser = async (req, res) => {
   try {
-    const saltRounds = 8;
+    const saltRounds = 10;
     const password = await bcrypt.hash(req.body.password, saltRounds);
     const user = await prisma.user.create({
       data: {
@@ -34,6 +34,7 @@ const loginUser = async (req, res) => {
         username: req.body.username,
       },
     });
+    console.log("User found: ", user);
     if (!user) {
       return res.status(400).json({ response: "User not found" });
     }
