@@ -54,10 +54,11 @@ const loginUser = async (req, res) => {
       }
     );
     console.log("Console: User logged in");
+    console.log(user.id);
 
     res
       .status(200)
-      .json({ response: "User logged in", token: token, id: user._id });
+      .json({ response: "User logged in", token: token, id: user.id });
   } catch (error) {
     console.log(error);
     res.status(400).json({ response: "User login failed", error: error });
@@ -79,7 +80,9 @@ const isAuthenticated = (req, res) => {
     if (!decoded) {
       return res.status(401).json({ response: false, message: "Unauthorized" });
     }
-    res.status(200).json({ response: true, message: "Authorized" });
+    res
+      .status(200)
+      .json({ response: true, message: "Authorized", id: decoded.id });
   } catch (error) {
     res.status(403).json({ response: false, message: "Unauthenticated" });
   }
