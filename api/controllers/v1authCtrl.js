@@ -34,7 +34,6 @@ const loginUser = async (req, res) => {
         username: req.body.username,
       },
     });
-    console.log("User found: ", user);
     if (!user) {
       return res.status(400).json({ response: "User not found" });
     }
@@ -54,7 +53,6 @@ const loginUser = async (req, res) => {
       }
     );
     console.log("Console: User logged in");
-    console.log(user.id);
 
     res
       .status(200)

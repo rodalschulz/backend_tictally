@@ -37,19 +37,19 @@ import prisma from "../prisma/prisma.js";
 //   console.error("Error creating collaboration:", error);
 // }
 
-// try {
-//   const newActivity = await prisma.activity.create({
-//     data: {
-//       userId: "6643fe29ee4281c912701859",
-//       day: "Monday",
-//       date: new Date("2023-05-14T09:00:00.000Z"),
-//       category: "WORK",
-//     },
-//   });
-//   console.log("New activity created:", newActivity);
-// } catch (error) {
-//   console.error("Error creating activity:", error);
-// }
+try {
+  const newActivity = await prisma.activity.create({
+    data: {
+      userId: "664409e3b7878bacc5558ed8",
+      day: "Monday",
+      date: new Date("2023-05-14T09:00:00.000Z"),
+      category: "WORK",
+    },
+  });
+  console.log("New activity created:", newActivity);
+} catch (error) {
+  console.error("Error creating activity:", error);
+}
 
 // try {
 //   const newActivity = await prisma.activity.create({

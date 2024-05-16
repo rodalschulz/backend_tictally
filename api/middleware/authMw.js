@@ -12,7 +12,6 @@ const authCheck = (req, res, next) => {
     }
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
-    console.log(`Decoded token: ${JSON.stringify(decoded)}`);
     next();
   } catch (error) {
     console.log(error);

@@ -16,16 +16,23 @@ v1router.post("/register", v1authCtrl.registerUser);
 v1router.post("/login", v1authCtrl.loginUser);
 v1router.get("/auth", v1authCtrl.isAuthenticated);
 
-// v1router.use(authentication.authCheck);
+v1router.use(authentication.authCheck);
 
-v1router.get("/members", async (req, res) => {
-  const members = await prisma.user.findMany({
-    select: {
-      username: true,
-      email: true,
-    },
-  });
-  res.status(200).json({ members });
+v1router.get("/users/:userId/activity-data", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const userActivityData = await prisma.activity.findMany({
+      where: {
+        userId: userId,
+      },
+    });
+    res.status(200).json({ userActivityData });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(400)
+      .json({ response: "Error fetching user activity data", error: error });
+  }
 });
 
 export default v1router;
