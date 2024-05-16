@@ -37,13 +37,18 @@ import prisma from "../prisma/prisma.js";
 //   console.error("Error creating collaboration:", error);
 // }
 
+// const date = new Date();
+// const timezoneOffsetMinutes = date.getTimezoneOffset();
+// const timezoneOffsetHours = timezoneOffsetMinutes / 60;
 // try {
 //   const newActivity = await prisma.activity.create({
 //     data: {
 //       userId: "664409e3b7878bacc5558ed8",
-//       day: "Monday",
-//       date: new Date("2023-05-14T09:00:00.000Z"),
+//       date: new Date("2024-05-16T09:00:00.000Z"),
 //       category: "WORK",
+//       timezone: `${timezoneOffsetHours > 0 ? "-" : "+"}${Math.abs(
+//         timezoneOffsetHours
+//       )}`,
 //     },
 //   });
 //   console.log("New activity created:", newActivity);

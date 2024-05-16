@@ -35,4 +35,39 @@ v1router.get("/users/:userId/activity-data", async (req, res) => {
   }
 });
 
+v1router.post("/users/:userId/activity-data", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const {
+      date,
+      description,
+      category,
+      subcategory,
+      startTime,
+      endTime,
+      adjustment,
+      timezone,
+    } = req.body;
+    const newUserActivity = await prisma.activity.create({
+      data: {
+        userId: userId,
+        date: date,
+        description: description,
+        category: category,
+        subcategory: subcategory,
+        startTime: startTime,
+        endTime: endTime,
+        adjustment: adjustment,
+        timezone: timezone,
+      },
+    });
+    res.status(201).json({ response: "User activity data created" });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(400)
+      .json({ response: "Error creating user activity data", error: error });
+  }
+});
+
 export default v1router;

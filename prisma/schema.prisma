@@ -58,15 +58,15 @@ model Activity {
   userId          String         @db.ObjectId
   collaboration   Collaboration? @relation(fields: [collaborationId], references: [id])
   collaborationId String?        @db.ObjectId
-  day             String
   date            DateTime
   description     String?
   category        String
   subcategory     String?
-  startTime       DateTime?
-  endTime         DateTime?
+  startTime       String?
+  endTime         String?
   adjustment      Int?
   totalTimeMin    Int?
+  timezone        String
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
