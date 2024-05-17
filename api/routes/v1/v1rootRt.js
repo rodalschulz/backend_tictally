@@ -25,6 +25,9 @@ v1router.get("/users/:userId/activity-data", async (req, res) => {
       where: {
         userId: userId,
       },
+      orderBy: {
+        date: "desc", // Order by the `date` field in descending order
+      },
     });
     res.status(200).json({ userActivityData });
   } catch (error) {
