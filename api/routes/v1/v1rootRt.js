@@ -92,4 +92,25 @@ v1router.delete("/users/:userId/activity-data", async (req, res) => {
   }
 });
 
+v1router.patch("/users/:userId/activity-data", async (req, res) => {
+  try {
+    console.log("PATCH request received");
+    const { userId } = req.params;
+    const { entryId, data } = req.body;
+    const dbResponse = await prisma.activity.update({
+      where: {
+        userId: userId,
+        id: entryId,
+      },
+      data: data,
+    });
+    res.status(200).json({ response: "User activity updated correctly." });
+  } catch (error) {
+    console.log(`Error: ${error}`);
+    res
+      .status(400)
+      .json({ response: "Error updating user activity data", error: error });
+  }
+});
+
 export default v1router;

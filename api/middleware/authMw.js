@@ -13,6 +13,7 @@ const authCheck = (req, res, next) => {
     }
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
+    console.log("authcheck successfull");
     next();
   } catch (error) {
     console.log(error);
