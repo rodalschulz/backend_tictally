@@ -1,7 +1,6 @@
 import express from "express";
 import v1authCtrl from "../../controllers/v1authCtrl.js";
 import authentication from "../../middleware/authMw.js";
-
 import prisma from "../../../prisma/prisma.js";
 
 const v1router = express.Router();
@@ -25,9 +24,7 @@ v1router.get("/users/:userId/activity-data", async (req, res) => {
       where: {
         userId: userId,
       },
-      orderBy: {
-        date: "desc", // Order by the `date` field in descending order
-      },
+      orderBy: [{ date: "desc" }, { startTime: "desc" }],
     });
     res.status(200).json({ userActivityData });
   } catch (error) {
@@ -49,6 +46,7 @@ v1router.post("/users/:userId/activity-data", async (req, res) => {
       startTime,
       endTime,
       adjustment,
+      totalTimeMin,
       timezone,
     } = req.body;
     const newUserActivity = await prisma.activity.create({
@@ -60,7 +58,8 @@ v1router.post("/users/:userId/activity-data", async (req, res) => {
         subcategory: subcategory,
         startTime: startTime,
         endTime: endTime,
-        adjustment: adjustment,
+        adjustment: +adjustment,
+        totalTimeMin: +totalTimeMin,
         timezone: timezone,
       },
     });
@@ -97,6 +96,16 @@ v1router.patch("/users/:userId/activity-data", async (req, res) => {
     console.log("PATCH request received");
     const { userId } = req.params;
     const { entryId, data } = req.body;
+
+    if (data.adjustment) {
+      // Convert adjustment to integer
+      data.adjustment = +data.adjustment;
+    }
+    // if (data.totalTimeMin) {
+    //   // Convert totalTimeMin to integer
+    //   data.totalTimeMin = +data.totalTimeMin;
+    // }
+
     const dbResponse = await prisma.activity.update({
       where: {
         userId: userId,
@@ -104,6 +113,7 @@ v1router.patch("/users/:userId/activity-data", async (req, res) => {
       },
       data: data,
     });
+    console.log(data);
     res.status(200).json({ response: "User activity updated correctly." });
   } catch (error) {
     console.log(`Error: ${error}`);
