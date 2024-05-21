@@ -62,8 +62,8 @@ model Activity {
   description     String?
   category        String
   subcategory     String?
-  startTime       DateTime?
-  endTime         DateTime?
+  startTime       String?
+  endTime         String?
   adjustment      Int?
   totalTimeMin    Int?
   timezone        String
