@@ -4,7 +4,7 @@ dotenv.config();
 
 const authCheck = (req, res, next) => {
   try {
-    console.log("authcheck from authMw.js");
+    console.log("auth-check from authMw.js");
     const JWT_SECRET = process.env.JWT_SECRET;
     const authHeader = req.headers.authorization;
     const token = authHeader.split(" ")[1];
@@ -13,7 +13,7 @@ const authCheck = (req, res, next) => {
     }
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
-    console.log("authcheck successfull");
+    console.log("auth-check successful");
     next();
   } catch (error) {
     console.log(error);
