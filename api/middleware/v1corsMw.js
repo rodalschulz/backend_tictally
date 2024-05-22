@@ -20,7 +20,7 @@ const corsConfig = (app) => {
     console.log("Console: CORS enabled for all origins");
   } else {
     app.use(cors(corsOptions));
-    console.log("Console: CORS enabled for specific origins");
+    console.log("Console: CORS enabled for tictally.io and www.tictally.io");
   }
 };
 

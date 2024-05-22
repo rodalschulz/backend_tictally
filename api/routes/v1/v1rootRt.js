@@ -3,11 +3,11 @@ import v1authCtrl from "../../controllers/v1authCtrl.js";
 import authentication from "../../middleware/authMw.js";
 import prisma from "../../../prisma/prisma.js";
 
-import fs from "fs";
-import path from "path";
-import multer from "multer";
-import csv from "csv-parser";
-import { fileURLToPath } from "url";
+// import fs from "fs";
+// import path from "path";
+// import multer from "multer";
+// import csv from "csv-parser";
+// import { fileURLToPath } from "url";
 
 const v1router = express.Router();
 
@@ -128,97 +128,97 @@ v1router.patch("/users/:userId/activity-data", async (req, res) => {
   }
 });
 
-// Convert import.meta.url to __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// // Convert import.meta.url to __dirname
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
-// Ensure uploads directory exists
-const uploadDirectory = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadDirectory)) {
-  fs.mkdirSync(uploadDirectory, { recursive: true });
-}
+// // Ensure uploads directory exists
+// const uploadDirectory = path.join(__dirname, "uploads");
+// if (!fs.existsSync(uploadDirectory)) {
+//   fs.mkdirSync(uploadDirectory, { recursive: true });
+// }
 
-// Multer config
-const upload = multer({
-  dest: uploadDirectory,
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype !== "text/csv") {
-      return cb(new Error("Only CSV files are allowed!"), false);
-    }
-    cb(null, true);
-  },
-});
+// // Multer config
+// const upload = multer({
+//   dest: uploadDirectory,
+//   fileFilter: (req, file, cb) => {
+//     if (file.mimetype !== "text/csv") {
+//       return cb(new Error("Only CSV files are allowed!"), false);
+//     }
+//     cb(null, true);
+//   },
+// });
 
-v1router.post(
-  "/users/:userId/upload-csv",
-  upload.single("file"),
-  async (req, res) => {
-    const { userId } = req.params;
+// v1router.post(
+//   "/users/:userId/upload-csv",
+//   upload.single("file"),
+//   async (req, res) => {
+//     const { userId } = req.params;
 
-    if (!req.file) {
-      return res
-        .status(400)
-        .json({ error: "No file uploaded or invalid file type" });
-    }
+//     if (!req.file) {
+//       return res
+//         .status(400)
+//         .json({ error: "No file uploaded or invalid file type" });
+//     }
 
-    const filePath = path.join(uploadDirectory, req.file.filename);
-    const results = [];
+//     const filePath = path.join(uploadDirectory, req.file.filename);
+//     const results = [];
 
-    fs.createReadStream(filePath)
-      .pipe(
-        csv({
-          mapHeaders: ({ header, index }) => header.trim(),
-        })
-      )
-      .on("data", (data) => {
-        const parsedData = {
-          date: data["date"],
-          description: data["description"],
-          category: data["category"],
-          subcategory: data["subcategory"],
-          startTime: data["startTime"],
-          endTime: data["endTime"],
-          adjustment: parseInt(data["adjustment"], 10),
-          totalTimeMin: parseInt(data["totalTimeMin"], 10),
-          timezone: data["timezone"],
-          userId: userId,
-        };
-        results.push(parsedData);
-      })
-      .on("end", async () => {
-        try {
-          if (results.length === 0) {
-            throw new Error("No data found in CSV file");
-          }
+//     fs.createReadStream(filePath)
+//       .pipe(
+//         csv({
+//           mapHeaders: ({ header, index }) => header.trim(),
+//         })
+//       )
+//       .on("data", (data) => {
+//         const parsedData = {
+//           date: data["date"],
+//           description: data["description"],
+//           category: data["category"],
+//           subcategory: data["subcategory"],
+//           startTime: data["startTime"],
+//           endTime: data["endTime"],
+//           adjustment: parseInt(data["adjustment"], 10),
+//           totalTimeMin: parseInt(data["totalTimeMin"], 10),
+//           timezone: data["timezone"],
+//           userId: userId,
+//         };
+//         results.push(parsedData);
+//       })
+//       .on("end", async () => {
+//         try {
+//           if (results.length === 0) {
+//             throw new Error("No data found in CSV file");
+//           }
 
-          await prisma.activity.createMany({
-            data: results,
-          });
+//           await prisma.activity.createMany({
+//             data: results,
+//           });
 
-          // Delete the uploaded file after processing
-          fs.unlinkSync(filePath);
+//           // Delete the uploaded file after processing
+//           fs.unlinkSync(filePath);
 
-          res.status(200).json({
-            message: "CSV file successfully uploaded and data saved.",
-          });
-        } catch (error) {
-          console.error(error);
-          // Ensure the file is deleted even if there is an error
-          fs.unlinkSync(filePath);
-          res.status(500).json({
-            error: "An error occurred while processing the CSV file.",
-          });
-        }
-      })
-      .on("error", (error) => {
-        console.error("Error reading CSV file:", error);
-        // Ensure the file is deleted if there is an error
-        fs.unlinkSync(filePath);
-        res.status(500).json({
-          error: "An error occurred while reading the CSV file.",
-        });
-      });
-  }
-);
+//           res.status(200).json({
+//             message: "CSV file successfully uploaded and data saved.",
+//           });
+//         } catch (error) {
+//           console.error(error);
+//           // Ensure the file is deleted even if there is an error
+//           fs.unlinkSync(filePath);
+//           res.status(500).json({
+//             error: "An error occurred while processing the CSV file.",
+//           });
+//         }
+//       })
+//       .on("error", (error) => {
+//         console.error("Error reading CSV file:", error);
+//         // Ensure the file is deleted if there is an error
+//         fs.unlinkSync(filePath);
+//         res.status(500).json({
+//           error: "An error occurred while reading the CSV file.",
+//         });
+//       });
+//   }
+// );
 
 export default v1router;
