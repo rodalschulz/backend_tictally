@@ -6,6 +6,7 @@ import prisma from "../../../prisma/prisma.js";
 import multer from "multer";
 import csv from "csv-parser";
 import stream from "stream";
+import { Parser } from "json2csv";
 
 const v1router = express.Router();
 
@@ -189,5 +190,55 @@ v1router.post(
       });
   }
 );
+
+v1router.get("/users/:userId/download-activity", async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const activities = await prisma.activity.findMany({
+      where: { userId: userId },
+    });
+
+    if (!activities || activities.length === 0) {
+      return res.status(404).json({ error: "No activity data found" });
+    }
+
+    const fields = [
+      "date",
+      "description",
+      "category",
+      "subcategory",
+      "startTime",
+      "endTime",
+      "adjustment",
+      "totalTimeMin",
+      "timezone",
+    ];
+
+    // Manually construct the CSV
+    let csv = fields.join(",") + "\n";
+    activities.forEach((activity) => {
+      const row = fields
+        .map((field) => {
+          if (field === "date") {
+            // Convert the date field to ISO string
+            return new Date(activity[field]).toISOString();
+          }
+          return activity[field] || "";
+        })
+        .join(",");
+      csv += row + "\n";
+    });
+
+    res.header("Content-Type", "text/csv");
+    res.attachment("activity-data.csv");
+    return res.send(csv);
+  } catch (error) {
+    console.error("Error generating CSV:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while generating the CSV file" });
+  }
+});
 
 export default v1router;
