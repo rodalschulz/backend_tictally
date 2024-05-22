@@ -6,7 +6,6 @@ import prisma from "../../../prisma/prisma.js";
 import multer from "multer";
 import csv from "csv-parser";
 import stream from "stream";
-import { Parser } from "json2csv";
 
 const v1router = express.Router();
 
@@ -197,6 +196,7 @@ v1router.get("/users/:userId/download-activity", async (req, res) => {
   try {
     const activities = await prisma.activity.findMany({
       where: { userId: userId },
+      orderBy: [{ date: "desc" }, { startTime: "desc" }],
     });
 
     if (!activities || activities.length === 0) {
@@ -238,6 +238,39 @@ v1router.get("/users/:userId/download-activity", async (req, res) => {
     res
       .status(500)
       .json({ error: "An error occurred while generating the CSV file" });
+  }
+});
+
+v1router.get("/users/:userId/query-activity-data", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { description, category, subcategory, date } = req.query;
+
+    const filters = {
+      userId: userId,
+      ...(description && {
+        description: { contains: description, mode: "insensitive" },
+      }),
+      ...(category && { category: category }),
+      ...(subcategory && { subcategory: subcategory }),
+      ...(date && { date: new Date(date) }),
+    };
+
+    const userActivityData = await prisma.activity.findMany({
+      where: filters,
+      orderBy: [{ date: "desc" }, { startTime: "desc" }],
+    });
+
+    let totalSum = 0;
+    for (const entry of userActivityData) {
+      totalSum += entry.totalTimeMin;
+    }
+    res.status(200).json({ userActivityData, totalSum });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(400)
+      .json({ response: "Error fetching user activity data", error: error });
   }
 });
 
