@@ -29,6 +29,7 @@ v1router.get("/users/:userId/activity-data", async (req, res) => {
         userId: userId,
       },
       orderBy: [{ date: "desc" }, { startTime: "desc" }],
+      take: 350,
     });
     res.status(200).json({ userActivityData });
   } catch (error) {
