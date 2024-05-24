@@ -21,10 +21,10 @@ model User {
   globalRole     Role            @default(USER)
   activities     Activity[]
   collaborations Collaboration[]
-  UserRole       UserRole[]
+  userRole       UserRole[]
   creationDate   DateTime        @default(now())
-  Pending        Pending[]
-  categories     Category[]
+  pending        Pending[]
+  categConfig    Json?           @db.Json
 
   @@map("users")
 }
@@ -38,7 +38,6 @@ model Collaboration {
   creationDate DateTime   @default(now())
   Activity     Activity[]
   Pending      Pending[]
-  categories   Category[]
 
   @@map("collaborations")
 }
@@ -89,19 +88,6 @@ model Pending {
   updatedAt       DateTime       @updatedAt
 
   @@map("pendings")
-}
-
-model Category {
-  id              String        @id @default(auto()) @map("_id") @db.ObjectId
-  user            User          @relation(fields: [userId], references: [id])
-  userId          String        @db.ObjectId
-  collaboration   Collaboration @relation(fields: [collaborationId], references: [id])
-  collaborationId String        @db.ObjectId
-  category        String
-  subcategory     String
-  coreLimit       Json          @db.Json
-
-  @@map("categories")
 }
 
 enum Role {

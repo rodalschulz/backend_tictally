@@ -49,7 +49,7 @@ const loginUser = async (req, res) => {
       { id: user._id, username: user.username, role: user.role },
       JWT_SECRET,
       {
-        expiresIn: "2h",
+        expiresIn: "3h",
       }
     );
     console.log("Console: User logged in");
