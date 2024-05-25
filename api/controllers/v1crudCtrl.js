@@ -42,16 +42,26 @@ const createActivity = async (req, res) => {
 const readActivities = async (req, res) => {
   try {
     const { userId } = req.params;
-    const userActivityData = await prisma.activity.findMany({
-      where: {
-        userId: userId,
-      },
+    const { totalEntries } = req.query;
+
+    const filters = {
+      userId: userId,
+    };
+
+    const queryOptions = {
+      where: filters,
       orderBy: [{ date: "desc" }, { startTime: "desc" }],
-      take: 350,
-    });
+    };
+
+    if (totalEntries && !isNaN(parseInt(totalEntries))) {
+      queryOptions.take = parseInt(totalEntries);
+    }
+
+    const userActivityData = await prisma.activity.findMany(queryOptions);
+
     res.status(200).json({ userActivityData });
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching user activity data:", error);
     res
       .status(400)
       .json({ response: "Error fetching user activity data", error: error });
