@@ -54,7 +54,15 @@ const readActivities = async (req, res) => {
     };
 
     if (totalEntries && !isNaN(parseInt(totalEntries))) {
-      queryOptions.take = parseInt(totalEntries);
+      const daysBack = parseInt(totalEntries);
+      const now = new Date();
+      const pastDate = new Date(now.setDate(now.getDate() - daysBack));
+
+      pastDate.setHours(0, 0, 0, 0);
+
+      filters.date = {
+        gte: pastDate,
+      };
     }
 
     const userActivityData = await prisma.activity.findMany(queryOptions);
