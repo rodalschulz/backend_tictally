@@ -79,25 +79,31 @@ const readActivities = async (req, res) => {
 const updateActivity = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { entryId, data } = req.body;
+    const { entryIds, data } = req.body;
+
+    if (!Array.isArray(entryIds)) {
+      return res.status(400).json({ response: "entryIds should be an array." });
+    }
 
     if (data.adjustment) {
-      // Convert adjustment to integer
       data.adjustment = +data.adjustment;
     }
     if (data.totalTimeMin) {
-      // Convert totalTimeMin to integer
       data.totalTimeMin = +data.totalTimeMin;
     }
 
-    const dbResponse = await prisma.activity.update({
-      where: {
-        userId: userId,
-        id: entryId,
-      },
-      data: data,
-    });
-    res.status(200).json({ response: "User activity updated correctly." });
+    const updatePromises = entryIds.map((entryId) =>
+      prisma.activity.update({
+        where: {
+          userId: userId,
+          id: entryId,
+        },
+        data: data,
+      })
+    );
+
+    await Promise.all(updatePromises);
+    res.status(200).json({ response: "User activities updated correctly." });
   } catch (error) {
     console.log(`Error: ${error}`);
     res
@@ -109,14 +115,23 @@ const updateActivity = async (req, res) => {
 const deleteActivity = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { entryId } = req.body;
-    const dbResponse = await prisma.activity.delete({
-      where: {
-        userId: userId,
-        id: entryId,
-      },
-    });
-    res.status(200).json({ response: "User activity deleted correctly." });
+    const { entryIds } = req.body;
+
+    if (!Array.isArray(entryIds)) {
+      return res.status(400).json({ response: "entryIds should be an array." });
+    }
+
+    const deletePromises = entryIds.map((entryId) =>
+      prisma.activity.delete({
+        where: {
+          userId: userId,
+          id: entryId,
+        },
+      })
+    );
+
+    await Promise.all(deletePromises);
+    res.status(200).json({ response: "User activities deleted correctly." });
   } catch (error) {
     console.log(`Error: ${error}`);
     res
