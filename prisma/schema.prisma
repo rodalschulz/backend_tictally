@@ -14,17 +14,19 @@ datasource db {
 }
 
 model User {
-  id             String          @id @default(auto()) @map("_id") @db.ObjectId
-  email          String          @unique
-  username       String          @unique
-  password       String
-  globalRole     Role            @default(USER)
-  activities     Activity[]
-  collaborations Collaboration[]
-  userRole       UserRole[]
-  creationDate   DateTime        @default(now())
-  pending        Pending[]
-  categConfig    Json?           @db.Json
+  id                String          @id @default(auto()) @map("_id") @db.ObjectId
+  email             String          @unique
+  username          String          @unique
+  password          String
+  globalRole        Role            @default(USER)
+  verified          Boolean         @default(false)
+  verificationToken String?
+  activities        Activity[]
+  collaborations    Collaboration[]
+  userRole          UserRole[]
+  creationDate      DateTime        @default(now())
+  pending           Pending[]
+  categConfig       Json?           @db.Json
 
   @@map("users")
 }
