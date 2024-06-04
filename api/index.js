@@ -30,6 +30,9 @@ v1router.post("/register", v1authCtrl.registerUser);
 v1router.post("/login", v1authCtrl.loginUser);
 v1router.get("/auth", v1authCtrl.isAuthenticated);
 v1router.get("/verify-email", v1authCtrl.verifyEmail);
+v1router.post("/password-recovery", v1authCtrl.passwordRecovery);
+v1router.post("/password-reset", v1authCtrl.passwordReset);
+
 v1router.use(authMw.authCheck);
 
 v1router.get("/users/:userId/activity-data", v1crudCtrl.readActivities);

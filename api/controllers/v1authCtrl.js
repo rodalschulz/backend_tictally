@@ -5,8 +5,12 @@ import jwt from "jsonwebtoken";
 dotenv.config();
 
 import crypto from "crypto";
+import email from "../utils/sendEmail.js";
 
-import verificationEmail from "../utils/sendEmail.js";
+const baseURL =
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:3600"
+    : "https://tictally.io";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -26,10 +30,10 @@ const registerUser = async (req, res) => {
       },
     });
 
-    await verificationEmail.sendVerificationEmail(
-      user.email,
-      verificationToken
-    );
+    const subject = "Email Verification";
+    const text = `Please verify your email by clicking the following link: ${baseURL}/verify-email?token=${verificationToken}`;
+
+    await email.sendEmail(user.email, subject, text);
 
     res.status(201).json({
       response:
@@ -66,7 +70,7 @@ const verifyEmail = async (req, res) => {
     });
 
     res.status(200).json({ response: "Email successfully verified" });
-    console.log("Email successfully verified");
+    console.log("Email successfully verified. You can now sign in.");
   } catch (error) {
     console.log(error);
     res
@@ -137,4 +141,68 @@ const isAuthenticated = (req, res) => {
   }
 };
 
-export default { registerUser, loginUser, isAuthenticated, verifyEmail };
+const passwordRecovery = async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: req.body.email.toLowerCase() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ response: "User not found" });
+    }
+
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { verificationToken: verificationToken },
+    });
+
+    const subject = "Password Recovery";
+    const text = `Please click the following link to reset your password: ${baseURL}/password-reset?token=${verificationToken}`;
+
+    await email.sendEmail(user.email, subject, text);
+    console.log("Password recovery email sent");
+    res.status(200).json({ response: "Password recovery email sent" });
+  } catch (error) {
+    res
+      .status(400)
+      .json({ response: "Password recovery failed", error: error });
+  }
+};
+
+const passwordReset = async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    const user = await prisma.user.findFirst({
+      where: { verificationToken: token },
+    });
+
+    if (!user) {
+      return res.status(400).json({ response: "Invalid or expired token" });
+    }
+
+    const saltRounds = 10;
+    const newPassword = await bcrypt.hash(password, saltRounds);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { password: newPassword, verificationToken: "" },
+    });
+
+    res.status(200).json({ response: "Password successfully reset" });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ response: "Password reset failed", error: error });
+  }
+};
+
+export default {
+  registerUser,
+  loginUser,
+  isAuthenticated,
+  verifyEmail,
+  passwordRecovery,
+  passwordReset,
+};
