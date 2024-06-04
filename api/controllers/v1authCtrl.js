@@ -46,6 +46,7 @@ const registerUser = async (req, res) => {
 
 const verifyEmail = async (req, res) => {
   const { token } = req.query;
+  console.log(token);
 
   try {
     const user = await prisma.user.findFirst({
@@ -53,6 +54,7 @@ const verifyEmail = async (req, res) => {
     });
 
     if (!user) {
+      console.log("Invalid or expired verification token");
       return res
         .status(400)
         .json({ response: "Invalid or expired verification token" });
@@ -89,6 +91,9 @@ const loginUser = async (req, res) => {
     );
     if (!validPassword) {
       return res.status(400).json({ response: "Invalid password" });
+    }
+    if (!user.verified) {
+      return res.status(400).json({ response: "Email not verified" });
     }
 
     const token = jwt.sign(
