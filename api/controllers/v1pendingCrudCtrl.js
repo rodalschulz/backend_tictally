@@ -3,7 +3,6 @@ import prisma from "../../prisma/prisma.js";
 const createPending = async (req, res) => {
   try {
     const { userId } = req.params;
-    console.log("User ID:", userId, "Pending Task Data:", req.body);
     const {
       date,
       time,
@@ -40,7 +39,6 @@ const readPending = async (req, res) => {
   try {
     const { userId } = req.params;
     const { daysTotal } = req.query;
-    console.log("User ID:", userId, "Days Total:", daysTotal);
 
     const filters = {
       userId: userId,
@@ -75,4 +73,25 @@ const readPending = async (req, res) => {
   }
 };
 
-export default { createPending, readPending };
+const deletePending = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { entryIds } = req.body;
+
+    await prisma.pending.deleteMany({
+      where: {
+        userId: userId,
+        id: { in: entryIds },
+      },
+    });
+
+    res.status(200).json({ response: "User pending tasks deleted" });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(400)
+      .json({ response: "Error deleting user pending tasks", error: error });
+  }
+};
+
+export default { createPending, readPending, deletePending };

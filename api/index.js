@@ -60,6 +60,10 @@ v1router.patch(
 
 v1router.post("/users/:userId/pending-tasks", v1pendingCrudCtrl.createPending);
 v1router.get("/users/:userId/pending-tasks", v1pendingCrudCtrl.readPending);
+v1router.delete(
+  "/users/:userId/pending-tasks",
+  v1pendingCrudCtrl.deletePending
+);
 
 app.use("/v1", v1router);
 
