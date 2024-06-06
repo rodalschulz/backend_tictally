@@ -104,7 +104,7 @@ const loginUser = async (req, res) => {
       { id: user._id, username: user.username, role: user.role },
       JWT_SECRET,
       {
-        expiresIn: "3h",
+        expiresIn: "6h",
       }
     );
     console.log("Console: User logged in");
@@ -162,7 +162,6 @@ const passwordRecovery = async (req, res) => {
     const text = `Please click the following link to reset your password: ${baseURL}/password-reset?token=${verificationToken}`;
 
     await email.sendEmail(user.email, subject, text);
-    console.log("Password recovery email sent");
     res.status(200).json({ response: "Password recovery email sent" });
   } catch (error) {
     res
