@@ -85,9 +85,9 @@ model Pending {
   description      String
   date             DateTime?
   time             String?
-  relevance        String?        @default("NORMAL")
-  urgency          String?        @default("NORMAL")
-  completed        Boolean        @default(false)
+  relevance        String?        @default("AVG")
+  urgency          String?        @default("AVG")
+  state            Boolean        @default(false)
   recurring        Boolean        @default(false)
   periodRecurrence String?        @default("YEARLY")
   createdAt        DateTime       @default(now())
