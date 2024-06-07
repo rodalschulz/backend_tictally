@@ -12,15 +12,17 @@ const createPending = async (req, res) => {
       recurring,
       periodRecurrence,
     } = req.body;
+    console.log(`Recurring: ${recurring}`);
     await prisma.pending.create({
       data: {
         userId: userId,
-        date: date,
+        date: date ? new Date(date) : null,
         time: time,
         description: description,
         relevance: relevance,
         urgency: urgency,
-        recurring: recurring === "true",
+        recurring:
+          typeof recurring === "string" ? recurring === "true" : recurring,
         periodRecurrence: periodRecurrence,
         state: false,
       },
@@ -40,13 +42,15 @@ const readPending = async (req, res) => {
     const { userId } = req.params;
     const { daysTotal } = req.query;
 
+    const now = new Date();
     const filters = {
       userId: userId,
+      recurring: false,
     };
 
+    let nonRecurringTasks = [];
     if (daysTotal && !isNaN(parseInt(daysTotal))) {
       const daysForward = parseInt(daysTotal);
-      const now = new Date();
 
       const startDate = new Date(now);
       startDate.setDate(now.getDate() - 3);
@@ -79,15 +83,27 @@ const readPending = async (req, res) => {
           ],
         },
       ];
+
+      const queryOptions = {
+        where: filters,
+        orderBy: [{ date: "asc" }, { time: "asc" }],
+      };
+
+      nonRecurringTasks = await prisma.pending.findMany(queryOptions);
     }
 
-    const queryOptions = {
-      where: filters,
+    const recurringTasks = await prisma.pending.findMany({
+      where: {
+        userId: userId,
+        recurring: true,
+      },
       orderBy: [{ date: "asc" }, { time: "asc" }],
-    };
+    });
 
-    const userPendingTasks = await prisma.pending.findMany(queryOptions);
+    // Combine non-recurring and recurring tasks
+    const userPendingTasks = [...nonRecurringTasks, ...recurringTasks];
 
+    // Sort combined tasks
     userPendingTasks.sort((a, b) => {
       const relevanceOrder = { HIGH: 1, AVG: 2, LOW: 3 };
       const urgencyOrder = { HIGH: 1, AVG: 2, LOW: 3 };
@@ -114,23 +130,35 @@ const updatePending = async (req, res) => {
   try {
     const { userId } = req.params;
     const { entryIds, data } = req.body;
-    console.log(data);
+
+    console.log(data.state);
 
     if (!Array.isArray(entryIds)) {
       return res.status(400).json({ response: "entryIds should be an array." });
     }
 
-    const updatePromises = entryIds.map((entryId) =>
-      prisma.pending.update({
+    const updatePromises = entryIds.map(async (entryId) => {
+      const pendingTask = await prisma.pending.findUnique({
+        where: {
+          userId: userId,
+          id: entryId,
+        },
+      });
+
+      if (data.state === true && pendingTask.recurring) {
+        return null;
+      }
+
+      return prisma.pending.update({
         where: {
           userId: userId,
           id: entryId,
         },
         data: data,
-      })
-    );
+      });
+    });
 
-    await Promise.all(updatePromises);
+    await Promise.all(updatePromises.filter(Boolean));
 
     res.status(200).json({ response: "User pending tasks updated" });
   } catch (error) {
