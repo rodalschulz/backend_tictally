@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import prisma from "../../prisma/prisma.js";
 dotenv.config();
 
 const authCheck = (req, res, next) => {
@@ -12,6 +13,11 @@ const authCheck = (req, res, next) => {
       return res.status(401).json({ response: "No token provided" });
     }
     const decoded = jwt.verify(token, JWT_SECRET);
+    const requestedId = req.originalUrl.split("/")[3];
+    if (decoded.id !== requestedId) {
+      console.log("Unauthorized");
+      return res.status(403).json({ response: "Unauthorized" });
+    }
     req.user = decoded;
     console.log("auth-check successful");
     next();
