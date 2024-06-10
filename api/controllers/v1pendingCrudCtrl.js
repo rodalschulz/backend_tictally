@@ -53,7 +53,7 @@ const readPending = async (req, res) => {
       const daysForward = parseInt(daysTotal);
 
       const startDate = new Date(now);
-      startDate.setDate(now.getDate() - 3);
+      startDate.setDate(now.getDate() - 2);
       startDate.setHours(0, 0, 0, 0);
 
       const futureDate = new Date(now);
