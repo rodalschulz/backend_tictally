@@ -224,7 +224,7 @@ const downloadActivities = async (req, res) => {
     ];
 
     // Manually construct the CSV
-    let csv = fields.join(",") + "\n";
+    let csv = fields.join("|") + "\n";
     activities.forEach((activity) => {
       const row = fields
         .map((field) => {
@@ -234,7 +234,7 @@ const downloadActivities = async (req, res) => {
           }
           return activity[field] || "";
         })
-        .join(",");
+        .join("|");
       csv += row + "\n";
     });
 

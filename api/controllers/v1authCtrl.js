@@ -37,7 +37,7 @@ const registerUser = async (req, res) => {
 
     res.status(201).json({
       response:
-        "User successfully registered. Please check your email to verify your account.",
+        "User successfully registered. Please check your email to verify your account. Don't forget to check your spam folder.",
     });
     console.log("User successfully registered. Verification email sent.");
   } catch (error) {
