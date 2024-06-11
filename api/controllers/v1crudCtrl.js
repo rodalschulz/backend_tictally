@@ -39,6 +39,11 @@ const createActivity = async (req, res) => {
   }
 };
 
+function timeStringToMinutes(time) {
+  const [hours, minutes] = time.split(":").map(Number);
+  return hours * 60 + minutes;
+}
+
 const readActivities = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -46,11 +51,6 @@ const readActivities = async (req, res) => {
 
     const filters = {
       userId: userId,
-    };
-
-    const queryOptions = {
-      where: filters,
-      orderBy: [{ date: "desc" }, { startTime: "desc" }],
     };
 
     if (totalEntries && !isNaN(parseInt(totalEntries))) {
@@ -65,7 +65,22 @@ const readActivities = async (req, res) => {
       };
     }
 
-    const userActivityData = await prisma.activity.findMany(queryOptions);
+    const userActivityData = await prisma.activity.findMany({
+      where: filters,
+      orderBy: [{ date: "desc" }, { startTime: "desc" }],
+    });
+
+    userActivityData.sort((a, b) => {
+      if (a.date > b.date) {
+        return -1;
+      } else if (a.date < b.date) {
+        return 1;
+      } else {
+        return (
+          timeStringToMinutes(b.startTime) - timeStringToMinutes(a.startTime)
+        );
+      }
+    });
 
     res.status(200).json({ userActivityData });
   } catch (error) {
