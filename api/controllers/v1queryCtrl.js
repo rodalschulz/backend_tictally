@@ -12,11 +12,11 @@ const queryActivities = async (req, res) => {
       }),
       ...(category && { category: category }),
       ...(subcategory && { subcategory: subcategory }),
-      ...(date && !date2 && { date: new Date(date) }), // Query for a specific date if only date is provided
+      ...(date && !date2 && { date: new Date(date) }),
       ...(date &&
         date2 && {
           date: {
-            gte: new Date(date), // Query for a date range if both date and date2 are provided
+            gte: new Date(date),
             lte: new Date(date2),
           },
         }),
