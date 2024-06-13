@@ -1,4 +1,5 @@
 import prisma from "../../prisma/prisma.js";
+import datetimeUtl from "../utils/datetimeUtl.js";
 
 const queryActivities = async (req, res) => {
   try {
@@ -25,6 +26,19 @@ const queryActivities = async (req, res) => {
     const userActivityData = await prisma.activity.findMany({
       where: filters,
       orderBy: [{ date: "desc" }, { startTime: "desc" }],
+    });
+
+    userActivityData.sort((a, b) => {
+      if (a.date > b.date) {
+        return -1;
+      } else if (a.date < b.date) {
+        return 1;
+      } else {
+        return (
+          datetimeUtl.timeStringToMinutes(b.startTime) -
+          datetimeUtl.timeStringToMinutes(a.startTime)
+        );
+      }
     });
 
     let totalSum = 0;

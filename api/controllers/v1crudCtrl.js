@@ -1,6 +1,7 @@
 import prisma from "../../prisma/prisma.js";
 import csv from "csv-parser";
 import stream from "stream";
+import datetimeUtl from "../utils/datetimeUtl.js";
 
 const createActivity = async (req, res) => {
   try {
@@ -39,11 +40,6 @@ const createActivity = async (req, res) => {
   }
 };
 
-function timeStringToMinutes(time) {
-  const [hours, minutes] = time.split(":").map(Number);
-  return hours * 60 + minutes;
-}
-
 const readActivities = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -77,7 +73,8 @@ const readActivities = async (req, res) => {
         return 1;
       } else {
         return (
-          timeStringToMinutes(b.startTime) - timeStringToMinutes(a.startTime)
+          datetimeUtl.timeStringToMinutes(b.startTime) -
+          datetimeUtl.timeStringToMinutes(a.startTime)
         );
       }
     });
