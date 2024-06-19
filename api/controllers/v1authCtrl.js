@@ -198,6 +198,21 @@ const passwordReset = async (req, res) => {
   }
 };
 
+const visitorEmail = async (req, res) => {
+  const { visitorEmail, name, message } = req.body;
+
+  try {
+    const subject = `Visitor Msg: from ${name} at ${visitorEmail}`;
+    const text = message;
+
+    await email.sendEmail("admin@tictally.io", subject, text);
+    res.status(200).json({ response: "Email sent" });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ response: "Email failed to send", error: error });
+  }
+};
+
 export default {
   registerUser,
   loginUser,
@@ -205,4 +220,5 @@ export default {
   verifyEmail,
   passwordRecovery,
   passwordReset,
+  visitorEmail,
 };

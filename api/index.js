@@ -27,6 +27,7 @@ v1router.get("/", async (req, res) => {
   });
 });
 
+v1router.post("/visitor-email", v1authCtrl.visitorEmail);
 v1router.post("/register", v1authCtrl.registerUser);
 v1router.post("/login", v1authCtrl.loginUser);
 v1router.get("/auth", v1authCtrl.isAuthenticated);
