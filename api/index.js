@@ -51,6 +51,10 @@ v1router.get("/users/:userId/download-activity", v1crudCtrl.downloadActivities);
 v1router.get("/users/:userId/query-activity-data", v1queryCtrl.queryActivities);
 
 v1router.get(
+  "/users/:userId/subcats-to-track",
+  v1queryCtrl.querySubcatsToTrack
+);
+v1router.get(
   "/users/:userId/category-config",
   v1userConfigCtrl.readCategConfig
 );

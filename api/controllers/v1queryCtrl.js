@@ -54,4 +54,47 @@ const queryActivities = async (req, res) => {
   }
 };
 
-export default { queryActivities };
+const querySubcatsToTrack = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    console.log(userId);
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    const subcatsToTrack = user.categConfig.subcatsToTrack;
+    const subcatResults = {};
+
+    for (const entry of subcatsToTrack) {
+      const subcat = entry.subcat;
+      const startDate = entry.startDate;
+
+      const queriedData = await prisma.activity.findMany({
+        where: {
+          userId: userId,
+          subcategory: subcat,
+          date: {
+            gte: new Date(startDate),
+            lte: new Date(),
+          },
+        },
+      });
+
+      let subcatSum = 0;
+      queriedData.forEach((entry) => {
+        subcatSum += entry.totalTimeMin;
+      });
+
+      subcatResults[subcat] = subcatSum;
+    }
+
+    res.status(200).json({ subcatResults });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(400)
+      .json({ response: "Error fetching subcats to track", error: error });
+  }
+};
+
+export default { queryActivities, querySubcatsToTrack };
