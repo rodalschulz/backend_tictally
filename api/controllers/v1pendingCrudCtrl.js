@@ -3,26 +3,16 @@ import prisma from "../../prisma/prisma.js";
 const createPending = async (req, res) => {
   try {
     const { userId } = req.params;
-    const {
-      date,
-      time,
-      description,
-      relevance,
-      urgency,
-      recurring,
-      periodRecurrence,
-    } = req.body;
-    console.log(`Recurring: ${recurring}`);
+    const { date, time, description, category, relevUrgen, periodRecurrence } =
+      req.body;
     await prisma.pending.create({
       data: {
         userId: userId,
         date: date ? new Date(date) : null,
         time: time,
         description: description,
-        relevance: relevance,
-        urgency: urgency,
-        recurring:
-          typeof recurring === "string" ? recurring === "true" : recurring,
+        category: category,
+        relevUrgen: relevUrgen,
         periodRecurrence: periodRecurrence,
         state: false,
       },
@@ -45,7 +35,7 @@ const readPending = async (req, res) => {
     const now = new Date();
     const filters = {
       userId: userId,
-      recurring: false,
+      periodRecurrence: "",
     };
 
     let nonRecurringTasks = [];
@@ -95,7 +85,7 @@ const readPending = async (req, res) => {
     const recurringTasks = await prisma.pending.findMany({
       where: {
         userId: userId,
-        recurring: true,
+        periodRecurrence: { not: "" },
       },
       orderBy: [{ date: "asc" }, { time: "asc" }],
     });
@@ -105,14 +95,21 @@ const readPending = async (req, res) => {
 
     // Sort combined tasks
     userPendingTasks.sort((a, b) => {
-      const relevanceOrder = { HIGH: 1, AVG: 2, LOW: 3 };
-      const urgencyOrder = { HIGH: 1, AVG: 2, LOW: 3 };
+      const relevanceOrder = {
+        "HIGH | HIGH": 1,
+        "HIGH | AVG": 2,
+        "HIGH | LOW": 3,
+        "AVG | HIGH": 4,
+        "AVG | AVG": 5,
+        "AVG | LOW": 6,
+        "LOW | HIGH": 7,
+        "LOW | AVG": 8,
+        "LOW | LOW": 9,
+      };
 
-      if (relevanceOrder[a.relevance] < relevanceOrder[b.relevance]) return -1;
-      if (relevanceOrder[a.relevance] > relevanceOrder[b.relevance]) return 1;
-
-      if (urgencyOrder[a.urgency] < urgencyOrder[b.urgency]) return -1;
-      if (urgencyOrder[a.urgency] > urgencyOrder[b.urgency]) return 1;
+      if (relevanceOrder[a.relevUrgen] < relevanceOrder[b.relevUrgen])
+        return -1;
+      if (relevanceOrder[a.relevUrgen] > relevanceOrder[b.relevUrgen]) return 1;
 
       return 0;
     });
@@ -145,9 +142,9 @@ const updatePending = async (req, res) => {
         },
       });
 
-      if (data.state === true && pendingTask.recurring) {
-        return null;
-      }
+      // if (data.state === true && pendingTask.periodRecurrence) {
+      //   return null;
+      // }
 
       return prisma.pending.update({
         where: {

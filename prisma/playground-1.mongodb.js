@@ -1,3 +1,5 @@
+// db.pendings.deleteMany({});
+
 // db.activities.deleteMany({});
 //
 // db.users.createIndex({ username: 1 }, { unique: true });

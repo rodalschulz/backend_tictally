@@ -82,14 +82,13 @@ model Pending {
   userId           String         @db.ObjectId
   collaboration    Collaboration? @relation(fields: [collaborationId], references: [id])
   collaborationId  String?        @db.ObjectId
-  description      String
   date             DateTime?
   time             String?
-  relevance        String?        @default("AVG")
-  urgency          String?        @default("AVG")
-  state            Boolean        @default(false)
-  recurring        Boolean        @default(false)
+  description      String
+  category         String
+  relevUrgen       String?        @default("")
   periodRecurrence String?        @default("YEARLY")
+  state            Boolean        @default(false)
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
