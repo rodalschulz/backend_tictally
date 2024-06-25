@@ -33,8 +33,6 @@ const updateCategConfig = async (req, res) => {
       });
     }
 
-    // More validation logic can be added here
-
     const dbResponse = await prisma.user.update({
       where: {
         id: userId,

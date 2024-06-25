@@ -1,17 +1,16 @@
-import prisma from "../../prisma/prisma.js";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
-dotenv.config();
-
 import crypto from "crypto";
+
+import prisma from "../../prisma/prisma.js";
 import email from "../utils/sendEmail.js";
 
+dotenv.config();
 const baseURL =
   process.env.NODE_ENV === "development"
     ? "http://localhost:3600"
     : "https://tictally.io";
-
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const registerUser = async (req, res) => {
@@ -206,6 +205,7 @@ const visitorEmail = async (req, res) => {
     const text = message;
 
     await email.sendEmail("admin@tictally.io", subject, text);
+    await email.sendEmail("rod.schulz.rosas@gmail.com", subject, text);
     res.status(200).json({ response: "Email sent" });
   } catch (error) {
     console.log(error);

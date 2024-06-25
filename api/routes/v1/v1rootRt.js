@@ -1,3 +1,5 @@
+// DISCONTINUED: The routes can be found in index.js due to vercel pricing logic
+
 import express from "express";
 import multer from "multer";
 

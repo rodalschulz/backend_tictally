@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import prisma from "../../prisma/prisma.js";
+
 dotenv.config();
 
 const authCheck = (req, res, next) => {

@@ -1,6 +1,7 @@
-import prisma from "../../prisma/prisma.js";
 import csv from "csv-parser";
 import stream from "stream";
+
+import prisma from "../../prisma/prisma.js";
 import datetimeUtl from "../utils/datetimeUtl.js";
 
 const createActivity = async (req, res) => {
@@ -17,7 +18,7 @@ const createActivity = async (req, res) => {
       totalTimeMin,
       timezone,
     } = req.body;
-    const newUserActivity = await prisma.activity.create({
+    await prisma.activity.create({
       data: {
         userId: userId,
         date: date,
@@ -235,13 +236,12 @@ const downloadActivities = async (req, res) => {
       "timezone",
     ];
 
-    // Manually construct the CSV
+    // Construct the CSV
     let csv = fields.join("|") + "\n";
     activities.forEach((activity) => {
       const row = fields
         .map((field) => {
           if (field === "date") {
-            // Convert the date field to ISO string
             return new Date(activity[field]).toISOString();
           }
           return activity[field] || "";

@@ -142,10 +142,6 @@ const updatePending = async (req, res) => {
         },
       });
 
-      // if (data.state === true && pendingTask.periodRecurrence) {
-      //   return null;
-      // }
-
       return prisma.pending.update({
         where: {
           userId: userId,

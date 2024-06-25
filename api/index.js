@@ -27,6 +27,7 @@ v1router.get("/", async (req, res) => {
   });
 });
 
+// USER AUTHENTICATION
 v1router.post("/visitor-email", v1authCtrl.visitorEmail);
 v1router.post("/register", v1authCtrl.registerUser);
 v1router.post("/login", v1authCtrl.loginUser);
@@ -37,6 +38,7 @@ v1router.post("/password-reset", v1authCtrl.passwordReset);
 
 v1router.use(authMw.authCheck);
 
+// USER TALLY DATA
 v1router.get("/users/:userId/activity-data", v1crudCtrl.readActivities);
 v1router.post("/users/:userId/activity-data", v1crudCtrl.createActivity);
 v1router.patch("/users/:userId/activity-data", v1crudCtrl.updateActivity);
@@ -50,6 +52,7 @@ v1router.post(
 v1router.get("/users/:userId/download-activity", v1crudCtrl.downloadActivities);
 v1router.get("/users/:userId/query-activity-data", v1queryCtrl.queryActivities);
 
+// USER CATEGORY CONFIG
 v1router.get(
   "/users/:userId/subcats-to-track",
   v1queryCtrl.querySubcatsToTrack
@@ -63,6 +66,7 @@ v1router.patch(
   v1userConfigCtrl.updateCategConfig
 );
 
+// USER PENDING TASKS
 v1router.post("/users/:userId/pending-tasks", v1pendingCrudCtrl.createPending);
 v1router.get("/users/:userId/pending-tasks", v1pendingCrudCtrl.readPending);
 v1router.patch("/users/:userId/pending-tasks", v1pendingCrudCtrl.updatePending);
@@ -71,8 +75,8 @@ v1router.delete(
   v1pendingCrudCtrl.deletePending
 );
 
+// LISTENER
 app.use("/v1", v1router);
-
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
