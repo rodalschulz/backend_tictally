@@ -18,6 +18,8 @@ model User {
   email             String          @unique
   username          String          @unique
   password          String
+  lastLoginAttempt  String?
+  loginAttempts     Int             @default(0)
   globalRole        Role            @default(USER)
   verified          Boolean         @default(false)
   verificationToken String?

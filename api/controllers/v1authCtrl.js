@@ -6,6 +6,8 @@ import crypto from "crypto";
 import prisma from "../../prisma/prisma.js";
 import email from "../utils/sendEmail.js";
 
+import datetimeUtl from "../utils/datetimeUtl.js";
+
 dotenv.config();
 const baseURL =
   process.env.NODE_ENV === "development"
@@ -88,12 +90,39 @@ const loginUser = async (req, res) => {
     if (!user) {
       return res.status(400).json({ response: "User not found" });
     }
+
+    if (user.loginAttempts >= 5) {
+      return res
+        .status(400)
+        .json({ response: "Too many login attempts. Try again tomorrow." });
+    }
+
     const validPassword = await bcrypt.compare(
       req.body.password,
       user.password
     );
+
     if (!validPassword) {
-      return res.status(400).json({ response: "Invalid password" });
+      const todayStr = datetimeUtl.getTodayDDMMYYStr();
+      if (user.lastLoginAttempt === todayStr) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            lastLoginAttempt: todayStr,
+            loginAttempts: user.loginAttempts + 1,
+          },
+        });
+      } else {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { lastLoginAttempt: todayStr, loginAttempts: 1 },
+        });
+      }
+      return res.status(400).json({
+        response: `Invalid password. Today's total attempts: ${
+          user.loginAttempts + 1
+        }. Max daily attempts: 4.`,
+      });
     }
     if (!user.verified) {
       return res.status(400).json({ response: "Email not verified" });
@@ -104,7 +133,7 @@ const loginUser = async (req, res) => {
       { id: user.id, username: user.username, role: user.globalRole },
       JWT_SECRET,
       {
-        expiresIn: "6h",
+        expiresIn: "8h",
       }
     );
     console.log("Console: User logged in");
