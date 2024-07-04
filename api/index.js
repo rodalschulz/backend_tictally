@@ -6,6 +6,7 @@ import v1crudCtrl from "./controllers/v1crudCtrl.js";
 import v1queryCtrl from "./controllers/v1queryCtrl.js";
 import v1userConfigCtrl from "./controllers/v1userConfigCtrl.js";
 import v1pendingCrudCtrl from "./controllers/v1pendingCrudCtrl.js";
+import v1userDeletion from "./controllers/v1userDeletion.js";
 import authMw from "./middleware/authMw.js";
 import corsMw from "./middleware/v1corsMw.js";
 import apiKeyMw from "./middleware/v1apiKeyMw.js";
@@ -74,6 +75,9 @@ v1router.delete(
   "/users/:userId/pending-tasks",
   v1pendingCrudCtrl.deletePending
 );
+
+// USER DELETION
+v1router.delete("/users/:userId/account-deletion", v1userDeletion.deleteUser);
 
 // LISTENER
 app.use("/v1", v1router);
