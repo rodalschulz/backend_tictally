@@ -167,7 +167,9 @@ const uploadActivities = async (req, res) => {
   bufferStream.end(req.file.buffer);
 
   bufferStream
-    .pipe(csv({ mapHeaders: ({ header, index }) => header.trim() }))
+    .pipe(
+      csv({ mapHeaders: ({ header, index }) => header.trim(), separator: "|" })
+    )
     .on("data", (data) => {
       const parsedData = {
         date: data["date"],
