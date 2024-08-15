@@ -73,10 +73,13 @@ const readActivities = async (req, res) => {
       } else if (a.date < b.date) {
         return 1;
       } else {
-        return (
-          datetimeUtl.timeStringToMinutes(b.startTime) -
-          datetimeUtl.timeStringToMinutes(a.startTime)
-        );
+        let result;
+        if (a.startTime && b.startTime) {
+          result =
+            datetimeUtl.timeStringToMinutes(b.startTime) -
+            datetimeUtl.timeStringToMinutes(a.startTime);
+        }
+        return result;
       }
     });
 
