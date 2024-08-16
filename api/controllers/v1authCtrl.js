@@ -127,7 +127,6 @@ const loginUser = async (req, res) => {
     if (!user.verified) {
       return res.status(400).json({ response: "Email not verified" });
     }
-    console.log("user:", user);
 
     const token = jwt.sign(
       { id: user.id, username: user.username, role: user.globalRole },
