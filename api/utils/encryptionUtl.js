@@ -5,17 +5,9 @@ dotenv.config();
 
 const key = process.env.ENCRYPT_KEY;
 const iv = process.env.IV;
-if (key === undefined || iv === undefined) {
-  console.log("--- ERROR READING ENCRYPTION ENV VARIABLES ---");
-}
 
 export function encrypt(text) {
-  //   const key = process.env.ENCRYPT_KEY;
-  //   const iv = process.env.IV;
-  //   if (key === undefined || iv === undefined) {
-  //     console.log("ERROR READING ENV VARIABLES");
-  //     return;
-  //   }
+  if (text === "" || text === undefined || text === null) return text;
   const algorithm = "aes-256-cbc";
   const cipher = crypto.createCipheriv(
     algorithm,
@@ -29,12 +21,6 @@ export function encrypt(text) {
 }
 
 export function decrypt(encryptedData) {
-  //   const key = process.env.ENCRYPT_KEY;
-  //   const iv = process.env.IV;
-  //   if (key === undefined || iv === undefined) {
-  //     console.log("ERROR READING ENV VARIABLES");
-  //     return;
-  //   }
   if (encryptedData.length > 30 && !/\s/.test(encryptedData)) {
     const algorithm = "aes-256-cbc";
     const iv = encryptedData.slice(0, 32);

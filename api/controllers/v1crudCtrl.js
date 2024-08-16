@@ -5,8 +5,15 @@ import prisma from "../../prisma/prisma.js";
 import datetimeUtl from "../utils/datetimeUtl.js";
 import { encrypt, decrypt } from "../utils/encryptionUtl.js";
 
+import dotenv from "dotenv";
+
+dotenv.config();
+const key = process.env.ENCRYPT_KEY;
+const iv = process.env.IV;
+
 const createActivity = async (req, res) => {
   try {
+    console.log("HIT");
     const { userId } = req.params;
     const {
       date,
@@ -39,9 +46,10 @@ const createActivity = async (req, res) => {
     res.status(201).json({ response: "User activity data created" });
   } catch (error) {
     console.error(error);
-    res
-      .status(400)
-      .json({ response: "Error creating user activity data", error: error });
+    res.status(400).json({
+      response: `Error creating user activity data`,
+      error: error,
+    });
   }
 };
 
@@ -95,7 +103,7 @@ const readActivities = async (req, res) => {
 
     res.status(200).json({ userActivityData });
   } catch (error) {
-    console.error("Error fetching user activity data:", error);
+    console.error(`Error fetching user activity data`, error);
     res
       .status(400)
       .json({ response: "Error fetching user activity data", error: error });
