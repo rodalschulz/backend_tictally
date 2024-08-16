@@ -1,5 +1,54 @@
 // import prisma from "../prisma/prisma.js";
 
+import crypto from "crypto";
+import dotenv from "dotenv";
+
+dotenv.config();
+// Generate a random 256-bit key (32 bytes)
+const key = process.env.KEY;
+const iv = process.env.IV;
+
+// Encryption function
+function encrypt(text) {
+  const algorithm = "aes-256-cbc";
+  const cipher = crypto.createCipheriv(
+    algorithm,
+    Buffer.from(key, "hex"),
+    Buffer.from(iv, "hex")
+  );
+  let encrypted = cipher.update(text, "utf8", "hex");
+  encrypted += cipher.final("hex");
+
+  return iv + encrypted;
+}
+
+// Example usage
+const data = "Sensitive information";
+const encryptedData = encrypt(data);
+console.log("Encrypted data to store:", encryptedData);
+
+// Decryption function
+function decrypt(encryptedData) {
+  if (encryptedData.length === 96 && !/\s/.test(encryptedData)) {
+    const algorithm = "aes-256-cbc";
+    const iv = encryptedData.slice(0, 32); // Extract the IV from the string (32 characters for hex)
+    const encryptedText = encryptedData.slice(32); // The remaining is the encrypted data
+    const decipher = crypto.createDecipheriv(
+      algorithm,
+      Buffer.from(key, "hex"), // Use 'hex' instead of 'utf8'
+      Buffer.from(iv, "hex") // Use 'hex' instead of 'utf8'
+    );
+    let decrypted = decipher.update(encryptedText, "hex", "utf8");
+    decrypted += decipher.final("utf8");
+
+    return decrypted;
+  } else return encryptedData;
+}
+
+// Example usage
+const decryptedData = decrypt("simple string");
+console.log("Decrypted data:", decryptedData); // Outputs: 'Sensitive information'
+
 // try {
 //   const insertUser = await prisma.user.create({
 //     data: {

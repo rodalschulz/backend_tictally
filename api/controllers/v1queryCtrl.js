@@ -1,5 +1,6 @@
 import prisma from "../../prisma/prisma.js";
 import datetimeUtl from "../utils/datetimeUtl.js";
+import { decrypt } from "../utils/encryptionUtl.js";
 
 const queryActivities = async (req, res) => {
   try {
@@ -8,9 +9,6 @@ const queryActivities = async (req, res) => {
 
     const filters = {
       userId: userId,
-      ...(description && {
-        description: { contains: description, mode: "insensitive" },
-      }),
       ...(category && { category: category }),
       ...(subcategory && { subcategory: subcategory }),
       ...(date && !date2 && { date: new Date(date) }),
@@ -23,12 +21,41 @@ const queryActivities = async (req, res) => {
         }),
     };
 
+    // Fetch data without filtering by description
     const userActivityData = await prisma.activity.findMany({
       where: filters,
       orderBy: [{ date: "desc" }, { startTime: "desc" }],
     });
 
-    userActivityData.sort((a, b) => {
+    // Decrypt descriptions and filter by description
+    const decryptedData = userActivityData
+      .map((entry) => {
+        let decryptedDescription = entry.description;
+
+        if (decryptedDescription) {
+          try {
+            decryptedDescription = decrypt(decryptedDescription);
+          } catch (error) {
+            console.error("Error decrypting description:", error);
+          }
+        }
+
+        return {
+          ...entry,
+          description: decryptedDescription,
+        };
+      })
+      .filter((entry) => {
+        if (description) {
+          return (
+            entry.description &&
+            entry.description.toLowerCase().includes(description.toLowerCase())
+          );
+        }
+        return true;
+      });
+
+    decryptedData.sort((a, b) => {
       if (a.date > b.date) {
         return -1;
       } else if (a.date < b.date) {
@@ -42,10 +69,10 @@ const queryActivities = async (req, res) => {
     });
 
     let totalSum = 0;
-    for (const entry of userActivityData) {
+    for (const entry of decryptedData) {
       totalSum += entry.totalTimeMin;
     }
-    res.status(200).json({ userActivityData, totalSum });
+    res.status(200).json({ userActivityData: decryptedData, totalSum });
   } catch (error) {
     console.error(error);
     res

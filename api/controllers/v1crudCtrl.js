@@ -3,6 +3,7 @@ import stream from "stream";
 
 import prisma from "../../prisma/prisma.js";
 import datetimeUtl from "../utils/datetimeUtl.js";
+import { encrypt, decrypt } from "../utils/encryptionUtl.js";
 
 const createActivity = async (req, res) => {
   try {
@@ -18,11 +19,14 @@ const createActivity = async (req, res) => {
       totalTimeMin,
       timezone,
     } = req.body;
+
+    const encryptedDescription = encrypt(description);
+
     await prisma.activity.create({
       data: {
         userId: userId,
         date: date,
-        description: description,
+        description: encryptedDescription, // now encrypted
         category: category,
         subcategory: subcategory,
         startTime: startTime,
@@ -67,6 +71,12 @@ const readActivities = async (req, res) => {
       orderBy: [{ date: "desc" }, { startTime: "desc" }],
     });
 
+    userActivityData.forEach((entry) => {
+      if (entry.description) {
+        entry.description = decrypt(entry.description);
+      }
+    });
+
     userActivityData.sort((a, b) => {
       if (a.date > b.date) {
         return -1;
@@ -106,6 +116,9 @@ const updateActivity = async (req, res) => {
     }
     if (data.totalTimeMin) {
       data.totalTimeMin = +data.totalTimeMin;
+    }
+    if (data.description) {
+      data.description = encrypt(data.description);
     }
 
     const updatePromises = entryIds.map((entryId) =>
