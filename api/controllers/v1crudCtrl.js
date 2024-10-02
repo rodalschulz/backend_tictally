@@ -262,6 +262,12 @@ const downloadActivities = async (req, res) => {
       "timezone",
     ];
 
+    activities.forEach((entry) => {
+      if (entry.description) {
+        entry.description = decrypt(entry.description);
+      }
+    });
+
     // Construct the CSV
     let csv = fields.join("|") + "\n";
     activities.forEach((activity) => {
