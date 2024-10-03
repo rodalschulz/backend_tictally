@@ -14,12 +14,20 @@ const baseURL =
     ? "http://localhost:3600"
     : "https://tictally.io";
 const JWT_SECRET = process.env.JWT_SECRET;
+const USER_LIMIT = 20;
 
 const registerUser = async (req, res) => {
   try {
     const saltRounds = 10;
     const password = await bcrypt.hash(req.body.password, saltRounds);
     const verificationToken = crypto.randomBytes(32).toString("hex");
+
+    const totalUsers = await prisma.user.count();
+    if (totalUsers >= USER_LIMIT) {
+      return res
+        .status(409)
+        .json({ message: "No more spots available for new users." });
+    }
 
     const user = await prisma.user.create({
       data: {
@@ -132,7 +140,7 @@ const loginUser = async (req, res) => {
       { id: user.id, username: user.username, role: user.globalRole },
       JWT_SECRET,
       {
-        expiresIn: "8h",
+        expiresIn: "15h",
       }
     );
     console.log("Console: User logged in");
