@@ -14,7 +14,7 @@ const baseURL =
     ? "http://localhost:3600"
     : "https://tictally.io";
 const JWT_SECRET = process.env.JWT_SECRET;
-const USER_LIMIT = 20;
+const USER_LIMIT = 30;
 
 const registerUser = async (req, res) => {
   try {

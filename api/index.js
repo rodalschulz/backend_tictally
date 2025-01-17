@@ -24,7 +24,7 @@ const v1router = express.Router();
 
 v1router.get("/", async (req, res) => {
   res.status(200).json({
-    response: "Welcome to the API. There is no data in this base v1 endpoint.",
+    response: "Welcome to the API. There is no data in this root v1 endpoint.",
   });
 });
 
